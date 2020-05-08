@@ -20,7 +20,7 @@ module.exports.loop = function () {
     var quantityHarvestersS2 = 4;
     var quantityUpgradersS2 = 1;
     var quantityBuildersS2 = 0;
-    // ss
+    // remote git
     // spawning creeps from Spawn1
     if (Game.spawns.Spawn1.room.energyAvailable >= 650) { 
         if(harvesters.length < quantityHarvesters) {
