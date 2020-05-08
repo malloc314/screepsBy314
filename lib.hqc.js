@@ -1,6 +1,7 @@
-//library high quality code
+// library high quality code
 var libraryHqc = {
     creepProperties: {
+        // harvester props
         harvester: {
             memory: {
                 name: 'Harvester',
@@ -12,6 +13,7 @@ var libraryHqc = {
                 mineral: false
             }, 
         },
+        // upgrader props
         upgrader: {
             memory: {
                 name: 'Upgrader',
@@ -20,6 +22,7 @@ var libraryHqc = {
                 upgrading: false
             },
         },
+        // builder props
         builder: {
             memory: {
                 name: 'Builder',
@@ -29,6 +32,7 @@ var libraryHqc = {
                 repairing: false
             },
         },
+        // reaper props
         reaper: {
             memory: {
                 name: 'Reaper',
@@ -39,6 +43,7 @@ var libraryHqc = {
                 repairing: false
             },
         },
+        // capability body creeps part code
         capabilityParts: function (toughPart, workPart, carryPart, movePart, attackPart, attackRangePart, healPart, claimPart) {
             var ability = {
                 tough: TOUGH,
@@ -52,7 +57,6 @@ var libraryHqc = {
             }
             var creepAbility = [];
             var costCreep = 0;
-    
             toughPart > 0 ? boolToughPart = true : boolToughPart = false;
             workPart > 0 ? boolWorkPart = true : boolWorkPart = false;
             carryPart > 0 ? boolCarryPart = true : boolCarryPart = false;
@@ -61,7 +65,6 @@ var libraryHqc = {
             attackRangePart > 0 ? boolAttackRangePart = true : boolAttackRangePart = false;
             healPart > 0 ? boolHealPart = true : boolHealPart = false;
             claimPart > 0 ? boolClaimPart = true : boolClaimPart = false;
-            
             switch (true) {
                 case boolToughPart:
                     var costToughPart = 10 * toughPart;
@@ -118,6 +121,7 @@ var libraryHqc = {
             return creepAbility;
         },
     },
+    // create new creep block
     createCreep: function (creepName, creepMemory, creepCapability, spawnName) {
         creepMemory.spawn = spawnName;
         var newName = creepName + Game.time;
@@ -128,6 +132,7 @@ var libraryHqc = {
             {memory: creepMemory}
         );
     },
+    // change creeps role block
     changeRole: function(creepRole, creep) {
         var spawns = creep.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
@@ -146,9 +151,9 @@ var libraryHqc = {
         var attackHostileStructures = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES);
         switch (creepRole) {
             case 'harvester':
-                //name: 'Harvester'
-                //role: 'harvester' -> role: 'upgrader'
-                //spawn: 'Spawn1' && 'Spawn2'
+                // name: 'Harvester'
+                // role: 'harvester' -> role: 'upgrader'
+                // spawn: 'Spawn1' && 'Spawn2'
                 if(creep.memory.name == 'Harvester' && creep.memory.role == 'harvester' && roomEnergy == roomEnergyMaxCap && creep.memory.transfering == false) {
                     creep.memory.role = 'upgrader';
                     return creep.say('role: upgrader');
@@ -157,9 +162,9 @@ var libraryHqc = {
                     break;
                 }
             case 'upgrader':
-                //name: 'Harvester'
-                //role: 'upgrader' -> role: 'harvester'
-                //spawn: 'Spawn1' && 'Spawn2'
+                // name: 'Harvester'
+                // role: 'upgrader' -> role: 'harvester'
+                // spawn: 'Spawn1' && 'Spawn2'
                 if(creep.memory.name == 'Harvester' && creep.memory.role == 'upgrader' && roomEnergy < roomEnergyMaxCap) {
                     creep.memory.role = 'harvester';
                     return creep.say('role: harvester');
@@ -167,9 +172,9 @@ var libraryHqc = {
                 else {
                     break;
                 }
-                //name: 'Reaper'
-                //role: 'upgrader' -> role: 'reaper'
-                //spawn: 'Spawn2'
+                // name: 'Reaper'
+                // role: 'upgrader' -> role: 'reaper'
+                // spawn: 'Spawn2'
                 if(creep.memory.name == 'Reaper' && creep.memory.role == 'upgrader' && attackHostileCreeps || attackHostileStructures) {
                     creep.memory.role = 'reaper';
                     return creep.say('role: reaper');
@@ -177,9 +182,9 @@ var libraryHqc = {
                 else {
                     break;
                 }
-                //name: 'Reaper'
-                //role: 'upgrader' -> role: 'builder'
-                //spawn: 'Spawn2'
+                // name: 'Reaper'
+                // role: 'upgrader' -> role: 'builder'
+                // spawn: 'Spawn2'
                 if(creep.memory.name == 'Reaper' && creep.memory.role == 'upgrader' && findConstructionSites.length > 0) {
                     creep.memory.role = 'builder';
                     return creep.say('role: builder');
@@ -188,9 +193,9 @@ var libraryHqc = {
                     break;
                 }
             case 'builder':
-                //name: 'Reaper'
-                //role: 'builder' -> role: 'upgrader'
-                //spawn: 'Spawn2'
+                // name: 'Reaper'
+                // role: 'builder' -> role: 'upgrader'
+                // spawn: 'Spawn2'
                 if(creep.memory.name == 'Reaper' && creep.memory.role == 'builder' && findConstructionSites.length == 0) {
                     creep.memory.role = 'upgrader';
                     return creep.say('role: upgrader');
@@ -198,9 +203,9 @@ var libraryHqc = {
                 else {
                     break;
                 }
-                //name: 'Reaper'
-                //role: 'builder' -> role: 'reaper'
-                //spawn: 'Spawn2'
+                // name: 'Reaper'
+                // role: 'builder' -> role: 'reaper'
+                // spawn: 'Spawn2'
                 if(creep.memory.name == 'Reaper' && creep.memory.role == 'builder' && attackHostileCreeps || attackHostileStructures) {
                     creep.memory.role = 'reaper';
                     return creep.say('role: reaper');
@@ -209,9 +214,9 @@ var libraryHqc = {
                     break;
                 }
             case 'reaper':
-                //name: 'Reaper'
-                //role: 'reaper' -> role: 'upgrader'
-                //spawn: 'Spawn2'
+                // name: 'Reaper'
+                // role: 'reaper' -> role: 'upgrader'
+                // spawn: 'Spawn2'
                 if(creep.memory.name == 'Reaper' && creep.memory.role == 'reaper' && !attackHostileCreeps || !attackHostileStructures) {
                     creep.memory.role = 'upgrader';
                     return creep.say('role: upgrader');
@@ -219,9 +224,9 @@ var libraryHqc = {
                 else {
                     break;
                 }
-                //name: 'Reaper'
-                //role: 'reaper' -> role: 'builder'
-                //spawn: 'Spawn2'
+                // name: 'Reaper'
+                // role: 'reaper' -> role: 'builder'
+                // spawn: 'Spawn2'
                 if(creep.memory.name == 'Reaper' && creep.memory.role == 'reaper' && findConstructionSites.length > 0) {
                     creep.memory.role = 'builder';
                     return creep.say('role: builder');
@@ -233,6 +238,7 @@ var libraryHqc = {
                 break;
         }
     },
+    // creep harvester logic block
     harvesterLogic: function(creep) {
         var creepMaxCap = creep.store.getCapacity();
         var creepEnergy = creep.store[RESOURCE_ENERGY];
@@ -270,20 +276,20 @@ var libraryHqc = {
                 return false;
             }
         }
-        //harvesting energy flag
+        // harvesting set flag
         if(creep.memory.harvesting == false && creepEnergy == 0) {
             creep.memory.harvesting = true;
             creep.say('⛏️');
         }
-        //transfering energy flag
+        // transfering set flag
         if(creep.memory.harvesting == true && creepEnergy == creepMaxCap) {
             creep.memory.harvesting = false;
             creep.memory.transfering = true;
             creep.say('💡');
         }
-        //harvesting
+        // harvesting
         if(creep.memory.harvesting == true) { 
-            //sources
+            // find sources energy
             var sources = creep.room.find(FIND_SOURCES);
             if(sources.length == 1) {
                 if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
@@ -308,36 +314,41 @@ var libraryHqc = {
                 }
             }*/
         }
-        //transfering
+        // transfering energy
         if(creep.memory.harvesting == false) {
+            // to spawns
             var mySpawn = transferEnergyTo(STRUCTURE_SPAWN);
-            //var myStorage = transferEnergyTo(STRUCTURE_STORAGE);
+            // to extensions
             if(mySpawn == false) {
                 var extension = transferEnergyTo(STRUCTURE_EXTENSION);
                 creep.say('extension');
             }
+            // to links
             if(mySpawn == false && extension == false) {
                 var link = transferEnergyTo(STRUCTURE_LINK);
                 creep.say('link');
             }
+            // to towers
             if(mySpawn == false && extension == false && link == false) {
                 var tower = transferEnergyTo(STRUCTURE_TOWER);
                 creep.say('tower');
             }
+            // to containers
             if(mySpawn == false && extension == false && tower == false && link == false) {
                 var container = transferEnergyTo(STRUCTURE_CONTAINER);
                 creep.say('container');
             }
         }
-        //if end transfering 
+        // transfering process done
         if(container == false && tower == false && link == false && extension == false && mySpawn == false) {
             creep.memory.transfering = false;
         }
     },
+    // creep upgrader logic block
     upgraderLogic: function(creep) {
         var creepEnergy = creep.store[RESOURCE_ENERGY];
         var creepMaxCap = creep.store.getCapacity();
-        
+        // upgrading set flag
         if(creep.memory.upgrading == true && creepEnergy == 0) {
             creep.memory.upgrading = false;
             creep.say('⛏️');
@@ -346,6 +357,7 @@ var libraryHqc = {
             creep.memory.upgrading = true;
             creep.say('⬆️');
         }
+        // upgrading
         if(creep.memory.upgrading == true) {
             if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: 'green'}});
@@ -358,12 +370,13 @@ var libraryHqc = {
             }
         }
     },
+    // creep builder logic block
     builderLogic: function(creep) {
         var creepEnergy = creep.store[RESOURCE_ENERGY];
         var creepMaxCap = creep.store.getCapacity();
         var findConstructionSites = creep.room.find(FIND_CONSTRUCTION_SITES);
         
-        // budowanie
+        // building set flag
         if(creep.memory.building == true && creepEnergy == 0) {
             creep.memory.building = false;
             creep.say('⛏️');
@@ -377,7 +390,7 @@ var libraryHqc = {
             creep.say('✔️');
         }
 
-        // naprawianie
+        // repairing set flag
         if(creep.memory.repairing == true && creepEnergy == 0) {
             creep.memory.repairing = false;
             creep.say('✔️');
@@ -390,7 +403,6 @@ var libraryHqc = {
             creep.memory.repairing = false;
             creep.say('🧰');
         }
-
         if(findConstructionSites.length == 0 && creep.memory.repairing == true) {    
             var closestDamagedStructure = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: (structure) => structure.hits < structure.hitsMax && 
@@ -432,6 +444,7 @@ var libraryHqc = {
             }
         }
     },
+    // more time to life for creep
     moreTTL: function(creep) {
         if(creep.ticksToLive < 100) {
             creep.memory.TTL = true;

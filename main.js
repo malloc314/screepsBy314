@@ -71,7 +71,7 @@ module.exports.loop = function () {
             roleReaper.run(creep);
         }
     }
-    //structure main loop
+    // structure main loop
     for(var type in Game.structures) {
         var tower = Game.structures[type];
         if(Game.structures[type].structureType == STRUCTURE_TOWER) {
