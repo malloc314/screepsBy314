@@ -324,32 +324,32 @@ var libraryHqc = {
             var mySpawn = transferEnergyTo(STRUCTURE_SPAWN);
             // to extensions
             if(mySpawn == false) {
-                var extension = transferEnergyTo(STRUCTURE_EXTENSION);
+                var myExtension = transferEnergyTo(STRUCTURE_EXTENSION);
                 creep.say('extension');
             }
             // to links
-            if(mySpawn == false && extension == false) {
-                var link = transferEnergyTo(STRUCTURE_LINK);
+            if(mySpawn == false && myExtension == false) {
+                var myLink = transferEnergyTo(STRUCTURE_LINK);
                 creep.say('link');
             }
             // to towers
-            if(mySpawn == false && extension == false && link == false) {
-                var tower = transferEnergyTo(STRUCTURE_TOWER);
+            if(mySpawn == false && myExtension == false && myLink == false) {
+                var myTower = transferEnergyTo(STRUCTURE_TOWER);
                 creep.say('tower');
             }
             // to containers
-            if(mySpawn == false && extension == false && tower == false && link == false) {
-                var container = transferEnergyTo(STRUCTURE_CONTAINER);
+            if(mySpawn == false && myExtension == false && myTower == false && myLink == false) {
+                var myContainer = transferEnergyTo(STRUCTURE_CONTAINER);
                 creep.say('container');
             }
             // to storage
-            if(mySpawn == false && extension == false && tower == false && link == false && container == false) {
-                var storage = transferEnergyTo(STRUCTURE_STORAGE);
+            if(mySpawn == false && myExtension == false && myTower == false && myLink == false && myContainer == false) {
+                var myStorage = transferEnergyTo(STRUCTURE_STORAGE);
                 creep.say('storage');
             }
         }
         // transfering process done
-        if(mySpawn == false && extension == false && tower == false && link == false && container == false && storage == false) {
+        if(mySpawn == false && myExtension == false && myTower == false && myLink == false && myContainer == false && myStorage == false) {
             creep.memory.transfering = false;
         }
     },
