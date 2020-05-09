@@ -238,7 +238,11 @@ var libraryHqc = {
                 break;
         }
     },
-    // creep harvester logic block
+    // creep harvester mineral logic block
+    harvesterLogicMineral: function(creep) {
+
+    },
+    // creep harvester energy logic block
     harvesterLogic: function(creep) {
         var creepMaxCap = creep.store.getCapacity();
         var creepEnergy = creep.store[RESOURCE_ENERGY];
@@ -338,9 +342,14 @@ var libraryHqc = {
                 var container = transferEnergyTo(STRUCTURE_CONTAINER);
                 creep.say('container');
             }
+            // to storage
+            if(mySpawn == false && extension == false && tower == false && link == false && container == false) {
+                var storage = transferEnergyTo(STRUCTURE_STORAGE);
+                creep.say('storage');
+            }
         }
         // transfering process done
-        if(container == false && tower == false && link == false && extension == false && mySpawn == false) {
+        if(mySpawn == false && extension == false && tower == false && link == false && container == false && storage == false) {
             creep.memory.transfering = false;
         }
     },
@@ -406,9 +415,9 @@ var libraryHqc = {
         if(findConstructionSites.length == 0 && creep.memory.repairing == true) {    
             var closestDamagedStructure = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: (structure) => structure.hits < structure.hitsMax && 
-                structure.structureType != STRUCTURE_WALL &&
-                structure.structureType != STRUCTURE_ROAD &&
-                structure.structureType != STRUCTURE_CONTAINER
+                structure.structureType != STRUCTURE_WALL //&&
+                //structure.structureType != STRUCTURE_ROAD &&
+                //structure.structureType != STRUCTURE_CONTAINER
             });
             if(closestDamagedStructure) {
                 if(creep.repair(closestDamagedStructure) == ERR_NOT_IN_RANGE) {
