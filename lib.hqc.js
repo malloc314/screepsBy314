@@ -240,10 +240,53 @@ var libraryHqc = {
     },
     // creep harvester mineral logic block
     harvesterLogicMineral: function(creep) {
-
+        function transferEnergyTo(structType) {
+            var targets = creep.room.find(FIND_STRUCTURES, {
+                filter: (structure) => {
+                    return (structure.structureType == structType) && (structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0);
+                }
+            });
+            if(targets.length > 0) {
+                if(creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(targets[0], {visualizePathStyle: {stroke: 'white'}});
+                }
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        var minerals = creep.room.find(FIND_MINERALS);
+        var creepMaxCap = creep.store.getCapacity();
+        var creepMineral = creep.store[RESOURCE_ZYNTHIUM];
+        // harvesting set flag
+        if(creep.memory.harvesting == false && creepMineral == 0) {
+            creep.memory.harvesting = true;
+            creep.say('⛏️');
+        }
+        if(creep.memory.harvesting == true && creepMineral == creepMaxCap) {
+            creep.memory.harvesting = false;
+            creep.say('💡');
+        }
+        // harvesting
+        if(creep.memory.haresting == true) {
+            if(creep.harvest(minerals[0]) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(minerals[0], {visualizePathStyle: {stroke: 'yellow'}});
+            }
+        }
+        // transfering minerals
+        else {
+            // to storage
+            transferEnergyTo(STRUCTURE_STORAGE);
+            creep.say('storage');
+        }
     },
     // creep harvester energy logic block
     harvesterLogic: function(creep) {
+        // set mineral flag
+        var harvesters = _.filter(Game.creeps, (creep) => creep.memory.name == 'Harvester' && creep.memory.spawn == 'Spawn1');
+        harvesters[0].memory.mineral = true;
+
         var creepMaxCap = creep.store.getCapacity();
         var creepEnergy = creep.store[RESOURCE_ENERGY];
         var towers = creep.room.find(FIND_STRUCTURES, {

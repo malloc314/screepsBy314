@@ -18,11 +18,11 @@ module.exports.loop = function () {
     var quantityBuilders = 1;
     var quantityReaper = 0;
     var quantityHarvestersS2 = 4;
-    var quantityUpgradersS2 = 1;
+    var quantityUpgradersS2 = 2;
     var quantityBuildersS2 = 0;
-    // remote git
+
     // spawning creeps from Spawn1
-    if (Game.spawns.Spawn1.room.energyAvailable >= 650) { 
+    if (Game.spawns.Spawn1.room.energyAvailable >= 1000 && Game.spawns.Spawn1.spawning == null) { 
         if(harvesters.length < quantityHarvesters) {
             lib.createCreep(lib.creepProperties.harvester.memory.name, lib.creepProperties.harvester.memory, lib.creepProperties.capabilityParts(0, 4, 4, 8, 0, 0, 0, 0), 'Spawn1');
         }
@@ -37,7 +37,7 @@ module.exports.loop = function () {
         }
     }
     // spawning creeps from Spawn2
-    if(Game.spawns.Spawn2.room.energyAvailable >= 250) { 
+    if(Game.spawns.Spawn2.room.energyAvailable == 1300 && Game.spawns.Spawn2.spawning == null) { 
         if(harvestersS2.length < quantityHarvestersS2) {
             lib.createCreep(lib.creepProperties.harvester.memory.name, lib.creepProperties.harvester.memory, lib.creepProperties.capabilityParts(0, 4, 4, 8, 0, 0, 0, 0), 'Spawn2');
         }
