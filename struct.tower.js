@@ -2,7 +2,7 @@ var structTower = {
     /** @param {Tower} tower **/
     run: function(tower) {
         var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-            filter: (structure) => structure.hits < structure.hitsMax && structure.structureType != STRUCTURE_WALL && structure.hits <= 10000000
+            filter: (structure) => structure.hits < structure.hitsMax && structure.structureType != STRUCTURE_WALL && structure.hits <= 5000
         });
         if(closestDamagedStructure) {
             tower.repair(closestDamagedStructure);

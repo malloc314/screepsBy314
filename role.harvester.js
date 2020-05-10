@@ -17,7 +17,8 @@ var roleHarvester = {
         // harvester which spawed from 'Spawn2'
         if(creep.memory.spawn == 'Spawn2') {
             lib.harvesterLogic(creep);
-            lib.changeRole('harvester', creep);
+            //lib.harvesterLogicViaLink(creep);
+            //lib.changeRole('harvester', creep); s
         }
     }
 };
