@@ -9,8 +9,31 @@ var libraryHqc = {
                 spawn: '',
                 harvesting: true,
                 upgrading: false,
-                transfering: true,
-                mineral: false
+                transfering: false
+            }, 
+        },
+        // harvester linkTo props
+        harvesterLinkTo: {
+            memory: {
+                name: 'Harvester',
+                role: 'harvester',
+                spawn: '',
+                link: 'linkTo',
+                harvesting: true,
+                upgrading: false,
+                transfering: false
+            }, 
+        },
+        // harvester linkFrom props
+        harvesterLinkFrom: {
+            memory: {
+                name: 'Harvester',
+                role: 'harvester',
+                spawn: '',
+                link: 'linkFrom',
+                harvesting: true,
+                upgrading: false,
+                transfering: false
             }, 
         },
         // upgrader props
@@ -238,15 +261,22 @@ var libraryHqc = {
                 break;
         }
     },
-    // creep harvester via links
+
+
+    //var linkFrom = Game.rooms['E35S22'].lookForAt('structure', 35, 43)[0];
+    //var linkTo = Game.rooms['E35S22'].lookForAt('structure', 27, 17)[0];
+    // creep harvester via links (creep, roomName, x, y,)
     harvesterLogicViaLink: function(creep) {
         function transferEnergyTo(structType) {
             var targets = creep.room.find(FIND_STRUCTURES, {
                 filter: (structure) => {
-                    return (structure.structureType == structType) && (structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0);
+                    return (structure.structureType == structType) && 
+                    (structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0) || 
+                    (structure.structureType == STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 400);
                 }
             });
             if(targets.length > 0) {
+                //if(targets[0].structType == STRUCTURE_TOWER && targets[0].store.getFreeCapacity(RESOURCE_ENERGY) > 500)
                 if(creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(targets[0], {visualizePathStyle: {stroke: 'white'}});
                 }
@@ -260,43 +290,100 @@ var libraryHqc = {
         var creepMaxCap = creep.store.getCapacity();
         var creepEnergy = creep.store[RESOURCE_ENERGY];
         var linkFrom = Game.rooms['E35S22'].lookForAt('structure', 35, 43)[0];
-        var linkTo = linkFrom.pos.findInRange(FIND_MY_STRUCTURES, 2, {
-            filter: {
-                structureType: STRUCTURE_LINK
-        }})[0];
+        var linkTo = Game.rooms['E35S22'].lookForAt('structure', 27, 17)[0];
+        var spawns = creep.room.find(FIND_STRUCTURES, {
+            filter: (structure) => {
+                return structure.structureType == STRUCTURE_SPAWN;
+            }
+        });
+        var roomEnergy = spawns[0].room.energyAvailable;
+        var extensions = creep.room.find(FIND_STRUCTURES, {
+            filter: (structure) => {
+                return structure.structureType == STRUCTURE_EXTENSION;
+            }
+        });
+        var roomEnergyMaxCap = extensions.length * 50 + 300;
+        var towers = creep.room.find(FIND_STRUCTURES, {
+            filter: (structure) => {
+                return structure.structureType == STRUCTURE_TOWER;
+            }
+        });
+
+        //var linkTo = linkFrom.pos.findInRange(FIND_MY_STRUCTURES, 2, {
+        //    filter: {
+        //        structureType: STRUCTURE_LINK
+        //}})[0];
+        
         // harvesting set flag
         if(creep.memory.harvesting == false && creepEnergy == 0) {
             creep.memory.harvesting = true;
-            creep.memory.transfering = false;
             creep.say('⛏️');
         }
-        if(creep.memory.harvesting == true && creepEnergy == creepMaxCap) {
+        if(creep.memory.harvesting == true && creepEnergy == creepMaxCap || sources[1].energy == 0) {
             creep.memory.harvesting = false;
-            creep.memory.transfering = true;
             creep.say('💡');
         }
+        // transfering set flag
+        if(creepEnergy > 0) {
+            creep.memory.transfering = true;
+        }
+        if(creepEnergy == 0) {
+            creep.memory.transfering = false;
+        }
+
         // harvesting energy
-        if(creep.memory.haresting == true && creep.memory.link == 'linkForm') {
-            if(creep.harvest(sources[1]) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(sources[1], {visualizePathStyle: {stroke: 'yellow'}});
+        if(creep.memory.harvesting == true && creep.memory.link == 'linkFrom') {
+            if(sources.length == 1) {
+                if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(sources[0], {visualizePathStyle: {stroke: 'yellow'}});
+                }
+            }
+            else if(sources.length > 1) {
+                if(creep.harvest(sources[1]) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(sources[1], {visualizePathStyle: {stroke: 'yellow'}});
+                }
             }
         }
         // transfering energy
-        else if(creep.memory.haresting == false && creep.memory.link == 'linkForm') {
+        else if(creep.memory.harvesting == false && creep.memory.link == 'linkFrom') {
             // to link
-            transferEnergyTo(STRUCTURE_LINK);
-            if(linkFrom.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
+            if(creep.transfer(linkFrom, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(linkFrom, {visualizePathStyle: {stroke: 'white'}});
+            }
+        }
+        // send energy from linkFrom to linkTo
+        if(sources.length == 1) {
+            if(linkFrom.store.getFreeCapacity(RESOURCE_ENERGY) == 0 || sources[0].energy == 0) {
                 linkFrom.transferEnergy(linkTo);
             }
         }
-        // ...
+        else if(sources.length > 1) {
+            if(linkFrom.store.getFreeCapacity(RESOURCE_ENERGY) == 0 || sources[1].energy == 0) {
+                linkFrom.transferEnergy(linkTo);
+            }
+        }
+
+        // withdraw energy from linkTo
         if(creep.memory.transfering == false && creep.memory.link == 'linkTo') {
             if(creep.withdraw(linkTo, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(linkTo, {visualizePathStyle: {stroke: 'yellow'}});
             }
+            
+            if(linkTo.store[RESOURCE_ENERGY] == 0 && roomEnergy < roomEnergyMaxCap || towers[0].store.getFreeCapacity(RESOURCE_ENERGY) > 500 || towers[1].store.getFreeCapacity(RESOURCE_ENERGY) > 500) {
+                // storage
+                var storage = creep.room.find(FIND_STRUCTURES, {
+                filter: (structure) => {
+                    return (
+                        structure.structureType == STRUCTURE_STORAGE)
+                    }
+                });
+                if(creep.withdraw(storage[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(storage[0], {visualizePathStyle: {stroke: 'yellow'}});
+                }
+            }
         }
+        // transfering energy to
         else if(creep.memory.transfering == true && creep.memory.link == 'linkTo') {
-            // transfering energy
             // to spawns
             var mySpawn = transferEnergyTo(STRUCTURE_SPAWN);
             // to extensions
@@ -319,8 +406,12 @@ var libraryHqc = {
                 var myStorage = transferEnergyTo(STRUCTURE_STORAGE);
                 creep.say('storage');
             }
+            //console.log(myExtension)
         }
     },
+
+
+
     // creep harvester mineral logic block
     harvesterLogicMineral: function(creep) {
         function transferEnergyTo(structType) {
@@ -409,6 +500,7 @@ var libraryHqc = {
         // harvesting set flag
         if(creep.memory.harvesting == false && creepEnergy == 0) {
             creep.memory.harvesting = true;
+            creep.memory.transfering = false;
             creep.say('⛏️');
         }
         // transfering set flag
@@ -425,24 +517,32 @@ var libraryHqc = {
                 if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(sources[0], {visualizePathStyle: {stroke: 'yellow'}});
                 }
+                // storage
+                //  var storage = creep.room.find(FIND_STRUCTURES, {
+                //  filter: (structure) => {
+                //      return (
+                //          structure.structureType == STRUCTURE_STORAGE)
+                //      }
+                //  });
+                //  if(creep.withdraw(storage[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                //      creep.moveTo(storage[0], {visualizePathStyle: {stroke: 'yellow'}});
+                //  }
             }
             else if(sources.length > 1) {
                 if(creep.harvest(sources[1]) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(sources[1], {visualizePathStyle: {stroke: 'yellow'}});
                 }
+                // storage
+                // var storage = creep.room.find(FIND_STRUCTURES, {
+                // filter: (structure) => {
+                //     return (
+                //         structure.structureType == STRUCTURE_STORAGE)
+                //     }
+                // });
+                // if(creep.withdraw(storage[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                //     creep.moveTo(storage[0], {visualizePathStyle: {stroke: 'yellow'}});
+                // }
             }
-            /*if(roomEnergy == 0) {
-                //containers
-                var container = creep.room.find(FIND_STRUCTURES, {
-                filter: (structure) => {
-                    return (
-                        structure.structureType == STRUCTURE_CONTAINER)
-                    }
-                });
-                if(creep.withdraw(container[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(container[0], {visualizePathStyle: {stroke: 'yellow'}});
-                }
-            }*/
         }
         // transfering energy
         if(creep.memory.harvesting == false) {
@@ -453,31 +553,26 @@ var libraryHqc = {
                 var myExtension = transferEnergyTo(STRUCTURE_EXTENSION);
                 creep.say('extension');
             }
-            // to links
-            if(mySpawn == false && myExtension == false) {
-                var myLink = transferEnergyTo(STRUCTURE_LINK);
-                creep.say('link');
-            }
             // to towers
-            if(mySpawn == false && myExtension == false && myLink == false) {
+            if(mySpawn == false && myExtension == false) {
                 var myTower = transferEnergyTo(STRUCTURE_TOWER);
                 creep.say('tower');
             }
             // to containers
-            if(mySpawn == false && myExtension == false && myTower == false && myLink == false) {
+            if(mySpawn == false && myExtension == false && myTower == false) {
                 var myContainer = transferEnergyTo(STRUCTURE_CONTAINER);
                 creep.say('container');
             }
             // to storage
-            if(mySpawn == false && myExtension == false && myTower == false && myLink == false && myContainer == false) {
+            if(mySpawn == false && myExtension == false && myTower == false && myContainer == false) {
                 var myStorage = transferEnergyTo(STRUCTURE_STORAGE);
                 creep.say('storage');
             }
         }
         // transfering process done
-        if(mySpawn == false && myExtension == false && myTower == false && myLink == false && myContainer == false && myStorage == false) {
-            creep.memory.transfering = false;
-        }
+        //if(mySpawn == false && myExtension == false && myTower == false && myContainer == false && myStorage == false) {
+        //    creep.memory.transfering = false;
+        //}
     },
     // creep upgrader logic block
     upgraderLogic: function(creep) {
@@ -530,7 +625,7 @@ var libraryHqc = {
             creep.memory.repairing = false;
             creep.say('✔️');
         }
-        if(creep.memory.repairing ==  false && creepEnergy == creepMaxCap && findConstructionSites.length == 0) {
+        if(creep.memory.repairing == false && creepEnergy == creepMaxCap && findConstructionSites.length == 0) {
             creep.memory.repairing = true;
             creep.say('🧰');
         }
@@ -541,7 +636,8 @@ var libraryHqc = {
         if(findConstructionSites.length == 0 && creep.memory.repairing == true) {    
             var closestDamagedStructure = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: (structure) => structure.hits < structure.hitsMax && 
-                structure.structureType != STRUCTURE_WALL //&&
+                structure.hits < 60000
+                //structure.structureType != STRUCTURE_WALL &&
                 //structure.structureType != STRUCTURE_ROAD &&
                 //structure.structureType != STRUCTURE_CONTAINER
             });

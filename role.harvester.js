@@ -12,13 +12,15 @@ var roleHarvester = {
                 //lib.harvesterLogicMineral(creep);
             }
             // change role harvester -> upgrader
-            lib.changeRole('harvester', creep);
+            //lib.changeRole('harvester', creep);
         }
+        
+        
         // harvester which spawed from 'Spawn2'
         if(creep.memory.spawn == 'Spawn2') {
-            lib.harvesterLogic(creep);
-            //lib.harvesterLogicViaLink(creep);
-            //lib.changeRole('harvester', creep); s
+            //lib.harvesterLogic(creep);
+            lib.harvesterLogicViaLink(creep);
+            //lib.changeRole('harvester', creep);
         }
     }
 };

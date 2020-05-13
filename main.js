@@ -10,21 +10,30 @@ module.exports.loop = function () {
     var upgraders = _.filter(Game.creeps, (creep) => creep.memory.name == 'Upgrader' && creep.memory.spawn == 'Spawn1');
     var builders = _.filter(Game.creeps, (creep) => creep.memory.name == 'Builder' && creep.memory.spawn == 'Spawn1');
     var reapers = _.filter(Game.creeps, (creep) => creep.memory.name == 'Reaper' && creep.memory.spawn == 'Spawn1');
+
+    var harvestersS2LinkTo = _.filter(Game.creeps, (creep) => creep.memory.link == 'linkTo' && creep.memory.spawn == 'Spawn2');
+    var harvestersS2LinkFrom = _.filter(Game.creeps, (creep) => creep.memory.link == 'linkFrom' && creep.memory.spawn == 'Spawn2');
     var harvestersS2 = _.filter(Game.creeps, (creep) => creep.memory.name == 'Harvester' && creep.memory.spawn == 'Spawn2');
     var upgradersS2 = _.filter(Game.creeps, (creep) => creep.memory.name == 'Upgrader' && creep.memory.spawn == 'Spawn2');
     var buildersS2 = _.filter(Game.creeps, (creep) => creep.memory.name == 'Builder' && creep.memory.spawn == 'Spawn2');
+
+
+   
     var quantityHarvesters = 2;
     var quantityUpgraders = 1;
     var quantityBuilders = 1;
     var quantityReaper = 0;
-    var quantityHarvestersS2 = 4;
+
+    var quantityHarvestersS2LinkTo = 1;
+    var quantityHarvestersS2LinkFrom = 1;
+    var quantityHarvestersS2 = 0;
     var quantityUpgradersS2 = 2;
     var quantityBuildersS2 = 1;
 
     // spawning creeps from Spawn1
     if (Game.spawns.Spawn1.room.energyAvailable >= 1000 && Game.spawns.Spawn1.spawning == null) { 
         if(harvesters.length < quantityHarvesters) {
-            lib.createCreep(lib.creepProperties.harvester.memory.name, lib.creepProperties.harvester.memory, lib.creepProperties.capabilityParts(0, 4, 4, 8, 0, 0, 0, 0), 'Spawn1');
+            lib.createCreep(lib.creepProperties.harvester.memory.name, lib.creepProperties.harvester.memory, lib.creepProperties.capabilityParts(0, 4, 8, 12, 0, 0, 0, 0), 'Spawn1');
         }
         if(upgraders.length < quantityUpgraders && harvesters.length == quantityHarvesters) {
             lib.createCreep(lib.creepProperties.upgrader.memory.name, lib.creepProperties.upgrader.memory, lib.creepProperties.capabilityParts(0, 3, 2, 5, 0, 0, 0, 0), 'Spawn1');
@@ -37,14 +46,19 @@ module.exports.loop = function () {
         }
     }
     // spawning creeps from Spawn2
-    if(Game.spawns.Spawn2.room.energyAvailable >= 1000 && Game.spawns.Spawn2.spawning == null) { 
-        if(harvestersS2.length < quantityHarvestersS2) {
-            lib.createCreep(lib.creepProperties.harvester.memory.name, lib.creepProperties.harvester.memory, lib.creepProperties.capabilityParts(0, 4, 4, 8, 0, 0, 0, 0), 'Spawn2');
+    if(Game.spawns.Spawn1.room.energyAvailable >= 1000 && Game.spawns.Spawn2.spawning == null) { 
+
+        if(harvestersS2LinkFrom.length < quantityHarvestersS2LinkFrom) {
+            lib.createCreep(lib.creepProperties.harvesterLinkFrom.memory.name, lib.creepProperties.harvesterLinkFrom.memory, lib.creepProperties.capabilityParts(0, 5, 4, 4, 0, 0, 0, 0), 'Spawn2');
         }
-        if(upgradersS2.length < quantityUpgradersS2 && harvestersS2.length == quantityHarvestersS2) {
-            lib.createCreep(lib.creepProperties.upgrader.memory.name, lib.creepProperties.upgrader.memory, lib.creepProperties.capabilityParts(0, 4, 4, 8, 0, 0, 0, 0), 'Spawn2');
+        if(harvestersS2LinkTo.length < quantityHarvestersS2LinkTo) {
+            lib.createCreep(lib.creepProperties.harvesterLinkTo.memory.name, lib.creepProperties.harvesterLinkTo.memory, lib.creepProperties.capabilityParts(0, 1, 10, 11, 0, 0, 0, 0), 'Spawn2');
         }
-        if(buildersS2.length < quantityBuildersS2 && harvestersS2.length == quantityHarvestersS2 && upgradersS2.length == quantityUpgradersS2) {
+
+        if(upgradersS2.length < quantityUpgradersS2 && harvestersS2LinkFrom.length == quantityHarvestersS2LinkFrom && harvestersS2LinkTo.length == quantityHarvestersS2LinkTo) {
+            lib.createCreep(lib.creepProperties.upgrader.memory.name, lib.creepProperties.upgrader.memory, lib.creepProperties.capabilityParts(0, 10, 8, 8, 0, 0, 0, 0), 'Spawn2');
+        }
+        if(buildersS2.length < quantityBuildersS2 && harvestersS2LinkFrom.length == quantityHarvestersS2LinkFrom && harvestersS2LinkTo.length == quantityHarvestersS2LinkTo && upgradersS2.length == quantityUpgradersS2) {
             lib.createCreep(lib.creepProperties.builder.memory.name, lib.creepProperties.builder.memory, lib.creepProperties.capabilityParts(0, 1, 6, 7, 0, 0, 0, 0), 'Spawn2');
         }
     }
