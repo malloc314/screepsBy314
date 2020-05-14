@@ -262,11 +262,8 @@ var libraryHqc = {
         }
     },
 
-
-    //var linkFrom = Game.rooms['E35S22'].lookForAt('structure', 35, 43)[0];
-    //var linkTo = Game.rooms['E35S22'].lookForAt('structure', 27, 17)[0];
-    // creep harvester via links (creep, roomName, x, y,)
-    harvesterLogicViaLink: function(creep) {
+    // creep harvester via links (creep, roomName, xTo, yTo, xFrom, yFrom)
+    harvesterLogicViaLink: function(creep, roomName, xTo, yTo, xFrom, yFrom) {
         function transferEnergyTo(structType) {
             var targets = creep.room.find(FIND_STRUCTURES, {
                 filter: (structure) => {
@@ -276,7 +273,6 @@ var libraryHqc = {
                 }
             });
             if(targets.length > 0) {
-                //if(targets[0].structType == STRUCTURE_TOWER && targets[0].store.getFreeCapacity(RESOURCE_ENERGY) > 500)
                 if(creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(targets[0], {visualizePathStyle: {stroke: 'white'}});
                 }
@@ -287,10 +283,15 @@ var libraryHqc = {
             }
         }
         var sources = creep.room.find(FIND_SOURCES);
+        function quantitySources() {
+            if(sources.length == 1) return sources[0];
+            else if(sources.length > 1) return sources[1];
+        }
+
         var creepMaxCap = creep.store.getCapacity();
         var creepEnergy = creep.store[RESOURCE_ENERGY];
-        var linkFrom = Game.rooms['E35S22'].lookForAt('structure', 35, 43)[0];
-        var linkTo = Game.rooms['E35S22'].lookForAt('structure', 27, 17)[0];
+        var linkFrom = Game.rooms[roomName].lookForAt('structure', xFrom, yFrom)[0];
+        var linkTo = Game.rooms[roomName].lookForAt('structure', xTo, yTo)[0];
         var spawns = creep.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
                 return structure.structureType == STRUCTURE_SPAWN;
@@ -308,18 +309,13 @@ var libraryHqc = {
                 return structure.structureType == STRUCTURE_TOWER;
             }
         });
-
-        //var linkTo = linkFrom.pos.findInRange(FIND_MY_STRUCTURES, 2, {
-        //    filter: {
-        //        structureType: STRUCTURE_LINK
-        //}})[0];
         
         // harvesting set flag
         if(creep.memory.harvesting == false && creepEnergy == 0) {
             creep.memory.harvesting = true;
             creep.say('⛏️');
         }
-        if(creep.memory.harvesting == true && creepEnergy == creepMaxCap || sources[1].energy == 0) {
+        if(creep.memory.harvesting == true && creepEnergy == creepMaxCap || quantitySources().energy == 0) {
             creep.memory.harvesting = false;
             creep.say('💡');
         }
@@ -333,15 +329,8 @@ var libraryHqc = {
 
         // harvesting energy
         if(creep.memory.harvesting == true && creep.memory.link == 'linkFrom') {
-            if(sources.length == 1) {
-                if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(sources[0], {visualizePathStyle: {stroke: 'yellow'}});
-                }
-            }
-            else if(sources.length > 1) {
-                if(creep.harvest(sources[1]) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(sources[1], {visualizePathStyle: {stroke: 'yellow'}});
-                }
+            if(creep.harvest(quantitySources()) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(quantitySources(), {visualizePathStyle: {stroke: 'yellow'}});
             }
         }
         // transfering energy
@@ -352,17 +341,9 @@ var libraryHqc = {
             }
         }
         // send energy from linkFrom to linkTo
-        if(sources.length == 1) {
-            if(linkFrom.store.getFreeCapacity(RESOURCE_ENERGY) == 0 || sources[0].energy == 0) {
-                linkFrom.transferEnergy(linkTo);
-            }
+        if(linkFrom.store.getFreeCapacity(RESOURCE_ENERGY) == 0 || quantitySources().energy == 0) {
+            linkFrom.transferEnergy(linkTo);
         }
-        else if(sources.length > 1) {
-            if(linkFrom.store.getFreeCapacity(RESOURCE_ENERGY) == 0 || sources[1].energy == 0) {
-                linkFrom.transferEnergy(linkTo);
-            }
-        }
-
         // withdraw energy from linkTo
         if(creep.memory.transfering == false && creep.memory.link == 'linkTo') {
             if(creep.withdraw(linkTo, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {

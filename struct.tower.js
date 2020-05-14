@@ -10,15 +10,15 @@ var structTower = {
             if(closestDamagedStructure) {
                 tower.repair(closestDamagedStructure);
             }
-            //if(closestHostile) {
-            //    tower.attack(closestHostile);
-            //}
+            if(closestHostile) {
+                tower.attack(closestHostile);
+            }
         }
         // 2. room E35S22
         if(tower.room.name == 'E35S22') {
             var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
             var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-                filter: (structure) => structure.hits < structure.hitsMax && structure.hits < 80000
+                filter: (structure) => structure.hits < structure.hitsMax && structure.hits < 100000
             });
             if(closestDamagedStructure) {
                 tower.repair(closestDamagedStructure);
