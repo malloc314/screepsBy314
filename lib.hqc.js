@@ -268,8 +268,8 @@ var libraryHqc = {
             var targets = creep.room.find(FIND_STRUCTURES, {
                 filter: (structure) => {
                     return (structure.structureType == structType) && 
-                    (structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0) || 
-                    (structure.structureType == STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 400);
+                    (structure.structureType != STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0) || 
+                    (structure.structureType == STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 500);
                 }
             });
             if(targets.length > 0) {
@@ -309,7 +309,19 @@ var libraryHqc = {
                 return structure.structureType == STRUCTURE_TOWER;
             }
         });
-        
+        var storage = creep.room.find(FIND_STRUCTURES, {
+            filter: (structure) => {
+                return (
+                    structure.structureType == STRUCTURE_STORAGE)
+                }
+        });
+        var container = creep.room.find(FIND_STRUCTURES, {
+            filter: (structure) => {
+                return (
+                    structure.structureType == STRUCTURE_CONTAINER) && 
+                    structure.store.getFreeCapacity(RESOURCE_ENERGY) <= 1900;
+            }
+        });
         // harvesting set flag
         if(creep.memory.harvesting == false && creepEnergy == 0) {
             creep.memory.harvesting = true;
@@ -350,19 +362,27 @@ var libraryHqc = {
                 creep.moveTo(linkTo, {visualizePathStyle: {stroke: 'yellow'}});
             }
             
-            if(linkTo.store[RESOURCE_ENERGY] == 0 && roomEnergy < roomEnergyMaxCap || towers[0].store.getFreeCapacity(RESOURCE_ENERGY) > 500 || towers[1].store.getFreeCapacity(RESOURCE_ENERGY) > 500) {
-                // storage
-                var storage = creep.room.find(FIND_STRUCTURES, {
-                filter: (structure) => {
-                    return (
-                        structure.structureType == STRUCTURE_STORAGE)
+            if(
+                linkTo.store[RESOURCE_ENERGY] == 0 && 
+                roomEnergy < roomEnergyMaxCap ||
+                towers[0].store.getFreeCapacity(RESOURCE_ENERGY) > 500 ||
+                towers[1].store.getFreeCapacity(RESOURCE_ENERGY) > 500
+            ) {
+                if(storage[0].store.getUsedCapacity() > 10000) {
+                    // storage
+                    if(creep.withdraw(storage[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(storage[0], {visualizePathStyle: {stroke: 'yellow'}});
                     }
-                });
-                if(creep.withdraw(storage[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(storage[0], {visualizePathStyle: {stroke: 'yellow'}});
+                }
+                else {
+                     // container
+                     if(creep.withdraw(container[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(container[0], {visualizePathStyle: {stroke: 'yellow'}});
+                    }
                 }
             }
         }
+        
         // transfering energy to
         else if(creep.memory.transfering == true && creep.memory.link == 'linkTo') {
             // to spawns
@@ -439,8 +459,8 @@ var libraryHqc = {
     // creep harvester energy logic block
     harvesterLogic: function(creep) {
         // set mineral flag
-        var harvesters = _.filter(Game.creeps, (creep) => creep.memory.name == 'Harvester' && creep.memory.spawn == 'Spawn1');
-        harvesters[0].memory.mineral = true;
+        //var harvesters = _.filter(Game.creeps, (creep) => creep.memory.name == 'Harvester' && creep.memory.spawn == 'Spawn1');
+        //harvesters[0].memory.mineral = true;
 
         var creepMaxCap = creep.store.getCapacity();
         var creepEnergy = creep.store[RESOURCE_ENERGY];
@@ -571,13 +591,13 @@ var libraryHqc = {
         // upgrading
         if(creep.memory.upgrading == true) {
             if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: 'green'}});
+                creep.moveTo(creep.room.controller, {reusePath: 50}, {visualizePathStyle: {stroke: 'green'}});
             }
         } 
         if(creep.memory.upgrading == false) {
             var sources = creep.room.find(FIND_SOURCES);
             if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(sources[0], {visualizePathStyle: {stroke: 'yellow'}});
+                creep.moveTo(sources[0], {reusePath: 50}, {visualizePathStyle: {stroke: 'yellow'}});
             }
         }
     },
@@ -617,7 +637,7 @@ var libraryHqc = {
         if(findConstructionSites.length == 0 && creep.memory.repairing == true) {    
             var closestDamagedStructure = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: (structure) => structure.hits < structure.hitsMax && 
-                structure.hits < 60000
+                structure.hits < 200000
                 //structure.structureType != STRUCTURE_WALL &&
                 //structure.structureType != STRUCTURE_ROAD &&
                 //structure.structureType != STRUCTURE_CONTAINER
@@ -649,9 +669,19 @@ var libraryHqc = {
                 creep.moveTo(container[0], {visualizePathStyle: {stroke: 'yellow'}});
             }
             else if(container.length == 0) {
-                var sources = creep.room.find(FIND_SOURCES);
-                if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(sources[0], {visualizePathStyle: {stroke: 'yellow'}});
+                //var sources = creep.room.find(FIND_SOURCES);
+                //if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
+                //    creep.moveTo(sources[0], {visualizePathStyle: {stroke: 'yellow'}});
+                //}
+                // storage
+                var storage = creep.room.find(FIND_STRUCTURES, {
+                    filter: (structure) => {
+                        return (
+                            structure.structureType == STRUCTURE_STORAGE)
+                        }
+                    });
+                if(creep.withdraw(storage[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(storage[0], {visualizePathStyle: {stroke: 'yellow'}});
                 }
             }
         }

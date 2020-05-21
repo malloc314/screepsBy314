@@ -18,7 +18,7 @@ var structTower = {
         if(tower.room.name == 'E35S22') {
             var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
             var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-                filter: (structure) => structure.hits < structure.hitsMax && structure.hits < 100000
+                filter: (structure) => structure.hits < structure.hitsMax && structure.hits < 200000
             });
             if(closestDamagedStructure) {
                 tower.repair(closestDamagedStructure);
